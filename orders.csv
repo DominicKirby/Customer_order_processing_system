@@ -1,0 +1,6 @@
+order_id,customer_id,product,quantity,price 
+1001,1,Laptop,1,800 
+1002,2,Mouse,2,20 
+1003,1,Keyboard,1,50 
+1004,3,Monitor,2,200 
+1005,2,Laptop,1,800 
