@@ -55,7 +55,7 @@ def process_orders(orders):
             "product" : row["product"],
             "quantity": row["quantity"],
             "price": row["price"],
-            "total": int(row["price"]) * int(row["quantity"])
+            "total": float(row["price"]) * float(row["quantity"])
          }
         new_list.append(new_entry)
     return new_list
