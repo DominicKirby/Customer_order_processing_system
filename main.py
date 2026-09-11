@@ -1,20 +1,28 @@
 import csv
 import json
 
+
 def load_customers(filename: str = "customers.json"):
     """
     Loads in the customers.json file
     """
-    with open (filename) as file:
-        return json.load(file)
+    try:
+        with open (filename) as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return print(filename + " not found.")
 
 def load_order(filename: str = "orders.csv"):
     """
     Loads in the orders.csv file
     """
-    with open (filename) as file:
-        reader = csv.DictReader(file)
-        return [{k.strip(): v.strip() for k, v in row.items()} for row in reader]
+    try:
+        with open (filename) as file:
+            reader = csv.DictReader(file)
+            return [{k.strip(): v.strip() for k, v in row.items()} for row in reader]
+    except FileNotFoundError:
+        return print(filename + " not found.")
+
 
 
 def customer_lookup(id:int, string):

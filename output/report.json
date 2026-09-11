@@ -3,8 +3,8 @@
     "top_customer": "Alice Smith",
     "top_city": "London",
     "top_products": [
-        "Mouse",
         "Laptop",
+        "Mouse",
         "Monitor"
     ],
     "average_order_value": 418.0,
