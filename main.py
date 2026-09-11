@@ -1,19 +1,28 @@
 import csv
 import json
 
-def load_customers(filename: str):
+def load_customers(filename: str = "customers.json"):
+    """
+    Loads in the customers.json file
+    """
     with open (filename) as file:
         return json.load(file)
 
-def load_order(filename: str):
+def load_order(filename: str = "orders.csv"):
+    """
+    Loads in the orders.csv file
+    """
     with open (filename) as file:
         reader = csv.DictReader(file)
         return [{k.strip(): v.strip() for k, v in row.items()} for row in reader]
 
 
 def customer_lookup(id:int, string):
+    """
+    Allows the user to lookup customer name or city based on input of ID number
+    """
     global customers_json
-    if string == "customer_id":
+    if string == "name":
         for customer in customers_json:
             if customer["customer_id"] == id:
                 return customer["name"]
@@ -25,11 +34,15 @@ def customer_lookup(id:int, string):
         return print("incorrect_input")
 
 def process_orders(orders):
+    """
+    Combines the customers.json and orders.csv file into 1 file which includes
+    order_id, customer_name, city, product, quantity, price, and total for each order
+    """
     new_list = []
     for row in orders:
         new_entry ={
             "order_id": row["order_id"],
-            "customer_name": customer_lookup(int(row["customer_id"]), "customer_id"),
+            "customer_name": customer_lookup(int(row["customer_id"]), "name"),
             "city": customer_lookup(int(row["customer_id"]), "city"),
             "product" : row["product"],
             "quantity": row["quantity"],
@@ -40,6 +53,9 @@ def process_orders(orders):
     return new_list
 
 def calculate_revenue_by_customer(processed_orders):
+    """
+    Works through each customer and finds the total money spent in the processed_orders
+    """
     revenue_by_customer = {}
     for customer in customers_json:
         personal_revenue = 0
@@ -50,16 +66,28 @@ def calculate_revenue_by_customer(processed_orders):
     return revenue_by_customer
 
 def calculate_revenue_by_city(processed_orders):
-    revenue_by_city = {}
+    """
+    Works through the choices of customer and makes a set of unique cities to cycle through
+    Then sums the total for each city in processed_orders
+    """
+    city_set = set()
     for customer in customers_json:
+        city_set.add(customer["city"])
+
+    revenue_by_city = {}
+    for city in city_set:
         city_revenue = 0
         for order in processed_orders:
-            if customer["city"] == order["city"]:
+            if city == order["city"]:
                 city_revenue += order["total"]
-        revenue_by_city[customer["city"]] =  city_revenue
+        revenue_by_city[city] =  city_revenue
     return revenue_by_city
 
 def calculate_units_by_product(processed_orders):
+    """
+    Works through customers to create a unique set of products
+    Then works through the products list and sums the quantity to find the most popular product
+    """
     product_set = set()
 
     for row in processed_orders:
@@ -77,6 +105,9 @@ def calculate_units_by_product(processed_orders):
     return units_by_product
 
 def revenue_by_customer_ordered(processed_orders):
+    """
+    Sorts the customer revenue dictionary into descending order of revenue spent
+    """
     revenue_by_customer = calculate_revenue_by_customer(processed_orders)
 
     customer_list = list(revenue_by_customer.items())
@@ -103,6 +134,9 @@ def revenue_by_customer_ordered(processed_orders):
     return ordered_revenue_dict
 
 def build_report(processed_orders):
+    """
+    Combines all the found information into one concise report
+    """
     report = {}
     total_revenue = 0
     revenue_by_customer = calculate_revenue_by_customer(processed_orders)
@@ -124,8 +158,6 @@ def build_report(processed_orders):
     highest_quantity = max(units_by_product.values())
     top_products = [name for name, product in units_by_product.items() if product == highest_quantity]
 
-
-
     report["total_revenue"] = total_revenue
     report["top_customer"] = top_customer
     report["top_city"] = top_city
@@ -134,28 +166,22 @@ def build_report(processed_orders):
     report["ordered_revenue_dict"] = ordered_revenue_dict
     return report
 
+def save_json(data, filename):
+    """
+    Saves data into a json file title "filename"
+    """
+    with open(filename, "w") as file:
+        json.dump(data, file, indent=4)
+
 
 customers_json = load_customers("customers.json")
-
 orders_csv = load_order("orders.csv")
 
 processed_orders = process_orders(orders_csv)
 
-customer_set = set()
-
-for row in processed_orders:
-    customer_set.add(row["customer_name"])
-
-number_of_customers = len(customer_set)
-
 report = build_report(processed_orders)
 
-def save_json(data, filename):
-    with open(filename, "w") as file:
-        json.dump(data, file, indent=4)
-
 save_json(processed_orders, "output/processed_orders.json")
-
 save_json(report, "output/report.json")
 
 
